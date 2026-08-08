@@ -8,7 +8,7 @@ using Umbraco.EditorialDigest.Settings;
 namespace Umbraco.EditorialDigest.Controllers;
 
 [PluginController(EditorialDigestConstants.AreaName)]
-[Authorize(Roles = EditorialDigestConstants.AdministratorsGroupAlias)]
+[Authorize(Roles = Umbraco.Cms.Core.Constants.Security.AdminGroupAlias)]
 public sealed class GlobalSettingsApiController : UmbracoAuthorizedJsonController
 {
     private readonly IGlobalSettingsStore _settingsStore;
