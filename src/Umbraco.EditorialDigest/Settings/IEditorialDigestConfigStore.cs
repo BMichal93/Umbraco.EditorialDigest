@@ -11,4 +11,5 @@ public interface IEditorialDigestConfigStore
     bool Update(int id, DigestConfigRequest request);
     bool Delete(int id);
     int? Duplicate(int id);
+    void SetRunResult(int id, DateTime runDateUtc, string status, string? errorMessage, int recipientCount);
 }

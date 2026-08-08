@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Migrations;
@@ -17,6 +19,13 @@ public sealed class MockUmbracoSmokeTests : UmbracoIntegrationTest
 {
     protected override void CustomTestSetup(IUmbracoBuilder builder)
         => new EditorialDigestComposer().Compose(builder);
+
+    protected override void ConfigureTestServices(IServiceCollection services)
+    {
+        var listener = new DiagnosticListener("EditorialDigestTests");
+        services.AddSingleton(listener);
+        services.AddSingleton<DiagnosticSource>(listener);
+    }
 
     [Test]
     public void ScopeProviderIsAvailable()

@@ -114,6 +114,24 @@ public sealed class EditorialDigestConfigStore : IEditorialDigestConfigStore
         return duplicatedId;
     }
 
+    public void SetRunResult(int id, DateTime runDateUtc, string status, string? errorMessage, int recipientCount)
+    {
+        using var scope = _scopeProvider.CreateScope();
+        var config = scope.Database.SingleOrDefault<EditorialDigestConfig>("WHERE Id = @0", id);
+        if (config is null)
+        {
+            return;
+        }
+
+        config.LastRunDate = runDateUtc;
+        config.LastRunStatus = status;
+        config.LastRunError = errorMessage;
+        config.LastRunRecipientCount = recipientCount;
+        config.LastModifiedDate = DateTime.UtcNow;
+        scope.Database.Update(config);
+        scope.Complete();
+    }
+
     private static void Apply(DigestConfigRequest request, EditorialDigestConfig config)
     {
         config.Name = request.Name.Trim();
