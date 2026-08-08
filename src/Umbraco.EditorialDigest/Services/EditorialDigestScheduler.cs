@@ -12,13 +12,15 @@ public sealed class EditorialDigestScheduler : BackgroundService
     private readonly IGlobalSettingsStore _globalSettingsStore;
     private readonly IEditorialDigestConfigStore _configStore;
     private readonly IEditorialDigestDeliveryService _deliveryService;
+    private readonly IEditorialDigestLogStore _logStore;
     private readonly ILogger<EditorialDigestScheduler> _logger;
 
-    public EditorialDigestScheduler(IGlobalSettingsStore globalSettingsStore, IEditorialDigestConfigStore configStore, IEditorialDigestDeliveryService deliveryService, ILogger<EditorialDigestScheduler> logger)
+    public EditorialDigestScheduler(IGlobalSettingsStore globalSettingsStore, IEditorialDigestConfigStore configStore, IEditorialDigestDeliveryService deliveryService, IEditorialDigestLogStore logStore, ILogger<EditorialDigestScheduler> logger)
     {
         _globalSettingsStore = globalSettingsStore;
         _configStore = configStore;
         _deliveryService = deliveryService;
+        _logStore = logStore;
         _logger = logger;
     }
 
@@ -51,13 +53,15 @@ public sealed class EditorialDigestScheduler : BackgroundService
         {
             try
             {
-                var recipientCount = await _deliveryService.SendAsync(configuration, utcNow, cancellationToken);
+                var recipientCount = await _deliveryService.SendAsync(configuration, utcNow, cancellationToken: cancellationToken);
                 _configStore.SetRunResult(configuration.Id, utcNow, "Success", null, recipientCount);
+                _logStore.Create(configuration.Id, utcNow, recipientCount, "Success", null, null);
             }
             catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
             {
                 LogDeliveryFailure(_logger, configuration.Id, exception);
                 _configStore.SetRunResult(configuration.Id, utcNow, "Failed", exception.Message, 0);
+                _logStore.Create(configuration.Id, utcNow, 0, "Failed", exception.Message, null);
             }
         }
     }

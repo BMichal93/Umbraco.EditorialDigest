@@ -66,6 +66,7 @@
                 vm.editor = response.data;
                 vm.editor.selectedUserGroups = parseUserGroups(vm.editor.recipientUserGroups);
                 loadMailingList();
+                loadHistory();
             }).catch(showError);
         };
 
@@ -167,6 +168,19 @@
             return "/umbraco/backoffice/EditorialDigest/MailingListApi/Export?configId=" + vm.editor.id;
         };
 
+        vm.preview = function () {
+            $window.open("/umbraco/backoffice/EditorialDigest/DigestDeliveryApi/Preview?id=" + vm.editor.id, "_blank");
+        };
+
+        vm.runNow = function () {
+            if ($window.confirm("Send this digest to all active recipients now?")) {
+                $http.post("/umbraco/backoffice/EditorialDigest/DigestDeliveryApi/RunNow?id=" + vm.editor.id).then(function () {
+                    notificationsService.success("Editorial Digest", "Digest sent.");
+                    loadConfigs();
+                }).catch(showError);
+            }
+        };
+
         function loadConfigs() {
             $http.get(endpoint + "GetAll").then(function (response) {
                 vm.configs = response.data;
@@ -188,6 +202,19 @@
                 params: { configId: vm.editor.id }
             }).then(function (response) {
                 vm.mailingEntries = response.data;
+            }).catch(showError);
+        }
+
+        function loadHistory() {
+            if (!vm.editor || !vm.editor.id) {
+                vm.history = [];
+                return;
+            }
+
+            $http.get("/umbraco/backoffice/EditorialDigest/DigestDeliveryApi/GetHistory", {
+                params: { id: vm.editor.id }
+            }).then(function (response) {
+                vm.history = response.data;
             }).catch(showError);
         }
 

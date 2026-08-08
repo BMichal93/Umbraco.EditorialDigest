@@ -29,6 +29,25 @@
                     <p ng-if="!vm.configs.length">No digest configurations have been created.</p>
                 </umb-box-content>
             </umb-box>
+
+            <umb-box ng-if="vm.editor.id">
+                <umb-box-header title="Delivery actions"></umb-box-header>
+                <umb-box-content>
+                    <umb-button type="button" button-style="default" label="Preview digest" action="vm.preview()"></umb-button>
+                    <umb-button type="button" button-style="warning" label="Run now" action="vm.runNow()"></umb-button>
+                </umb-box-content>
+            </umb-box>
+
+            <umb-box ng-if="vm.editor.id">
+                <umb-box-header title="Send history"></umb-box-header>
+                <umb-box-content>
+                    <umb-table ng-if="vm.history.length" items="vm.history">
+                        <umb-table-head><umb-table-head-cell>Sent</umb-table-head-cell><umb-table-head-cell>Status</umb-table-head-cell><umb-table-head-cell>Recipients</umb-table-head-cell></umb-table-head>
+                        <umb-table-row ng-repeat="entry in vm.history"><umb-table-cell>{{entry.sentDate | date:'medium'}}</umb-table-cell><umb-table-cell>{{entry.status}}</umb-table-cell><umb-table-cell>{{entry.recipientCount}}</umb-table-cell></umb-table-row>
+                    </umb-table>
+                    <p ng-if="!vm.history.length">No sends have been recorded.</p>
+                </umb-box-content>
+            </umb-box>
         </umb-editor-container>
     </umb-editor-view>
 

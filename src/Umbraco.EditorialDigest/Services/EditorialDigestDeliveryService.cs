@@ -27,7 +27,7 @@ public sealed class EditorialDigestDeliveryService : IEditorialDigestDeliverySer
         _emailSender = emailSender;
     }
 
-    public async Task<int> SendAsync(EditorialDigestConfig configuration, DateTime utcNow, CancellationToken cancellationToken = default)
+    public async Task<int> SendAsync(EditorialDigestConfig configuration, DateTime utcNow, IReadOnlyCollection<string>? recipients = null, CancellationToken cancellationToken = default)
     {
         var settings = _globalSettingsStore.GetCurrent();
         if (!settings.IsPackageEnabled || !configuration.IsEnabled || !_emailSender.CanSendRequiredEmail())
@@ -35,8 +35,8 @@ public sealed class EditorialDigestDeliveryService : IEditorialDigestDeliverySer
             return 0;
         }
 
-        var recipients = GetRecipients(configuration).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-        if (recipients.Length == 0)
+        var resolvedRecipients = (recipients ?? GetRecipients(configuration).ToArray()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        if (resolvedRecipients.Length == 0)
         {
             return 0;
         }
@@ -46,8 +46,8 @@ public sealed class EditorialDigestDeliveryService : IEditorialDigestDeliverySer
         var body = await _emailRenderer.RenderAsync(model, cancellationToken);
         var from = string.IsNullOrWhiteSpace(configuration.FromEmail) ? settings.DefaultFromEmail : configuration.FromEmail;
         var subject = configuration.SubjectLineTemplate.Replace("{{digestName}}", configuration.Name, StringComparison.Ordinal).Replace("{{date}}", utcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), StringComparison.Ordinal);
-        await _emailSender.SendAsync(new EmailMessage(from, recipients, null, null, string.IsNullOrWhiteSpace(configuration.ReplyToEmail) ? null : [configuration.ReplyToEmail], subject, body, true, null), "EditorialDigest");
-        return recipients.Length;
+        await _emailSender.SendAsync(new EmailMessage(from, resolvedRecipients, null, null, string.IsNullOrWhiteSpace(configuration.ReplyToEmail) ? null : [configuration.ReplyToEmail], subject, body, true, null), "EditorialDigest");
+        return resolvedRecipients.Length;
     }
 
     private IEnumerable<string> GetRecipients(EditorialDigestConfig configuration)

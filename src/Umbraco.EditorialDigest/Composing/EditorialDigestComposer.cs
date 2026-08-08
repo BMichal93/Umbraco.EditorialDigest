@@ -13,6 +13,7 @@ public sealed class EditorialDigestComposer : IComposer
         builder.Services.AddSingleton<IGlobalSettingsStore, GlobalSettingsStore>();
         builder.Services.AddSingleton<IEditorialDigestConfigStore, EditorialDigestConfigStore>();
         builder.Services.AddSingleton<IMailingListStore, MailingListStore>();
+        builder.Services.AddSingleton<IEditorialDigestLogStore, EditorialDigestLogStore>();
         builder.Services.AddSingleton<IEditorialDigestDataService, EditorialDigestDataService>();
         builder.Services.AddSingleton<IEditorialDigestEmailRenderer, RazorEditorialDigestEmailRenderer>();
         builder.Services.AddSingleton<IEditorialDigestDeliveryService, EditorialDigestDeliveryService>();
