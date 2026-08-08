@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.EditorialDigest.Constants;
 using Umbraco.EditorialDigest.Services;
 using Umbraco.EditorialDigest.Settings;
@@ -10,9 +9,10 @@ using Umbraco.EditorialDigest.Persistence;
 
 namespace Umbraco.EditorialDigest.Controllers;
 
-[PluginController(EditorialDigestConstants.AreaName)]
+[ApiController]
+[Route("umbraco/management/api/v1/editorial-digest/configurations/{id:int}/delivery")]
 [Authorize(Roles = Umbraco.Cms.Core.Constants.Security.AdminGroupAlias)]
-public sealed class DigestDeliveryApiController : UmbracoAuthorizedJsonController
+public sealed class DigestDeliveryApiController : ManagementApiControllerBase
 {
     private readonly IEditorialDigestConfigStore _configStore;
     private readonly IEditorialDigestDeliveryService _deliveryService;
@@ -31,7 +31,7 @@ public sealed class DigestDeliveryApiController : UmbracoAuthorizedJsonControlle
         _emailRenderer = emailRenderer;
     }
 
-    [HttpPost]
+    [HttpPost("run")]
     public async Task<IActionResult> RunNow(int id, CancellationToken cancellationToken)
     {
         var config = _configStore.GetById(id);
@@ -52,11 +52,11 @@ public sealed class DigestDeliveryApiController : UmbracoAuthorizedJsonControlle
         }
     }
 
-    [HttpGet]
+    [HttpGet("history")]
     public ActionResult<IReadOnlyCollection<DeliveryLogResponse>> GetHistory(int id)
         => Ok(_logStore.GetLatest(id, 10).Select(log => new DeliveryLogResponse(log.SentDate, log.RecipientCount, log.Status, log.ErrorMessage, log.DurationMs)));
 
-    [HttpGet]
+    [HttpGet("preview")]
     public async Task<IActionResult> Preview(int id, CancellationToken cancellationToken)
     {
         var config = _configStore.GetById(id);
@@ -67,7 +67,7 @@ public sealed class DigestDeliveryApiController : UmbracoAuthorizedJsonControlle
         return Content(html, "text/html");
     }
 
-    [HttpPost]
+    [HttpPost("test")]
     public async Task<IActionResult> SendTestEmail(int id, [FromBody] TestEmailRequest request, CancellationToken cancellationToken)
     {
         if (!new EmailAddressAttribute().IsValid(request.Email)) return BadRequest(new { error = "A valid email address is required." });

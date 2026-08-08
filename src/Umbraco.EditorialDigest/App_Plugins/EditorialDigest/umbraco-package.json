@@ -1,0 +1,42 @@
+{
+  "$schema": "../../umbraco-package-schema.json",
+  "id": "Umbraco.EditorialDigest",
+  "name": "Umbraco Editorial Digest",
+  "version": "0.1.0",
+  "extensions": [
+    {
+      "type": "dashboard",
+      "alias": "Umbraco.EditorialDigest.Dashboard.Overview",
+      "name": "Editorial Overview Dashboard",
+      "js": "/App_Plugins/EditorialDigest/editorial-overview-dashboard.js",
+      "weight": -10,
+      "meta": {
+        "label": "Editorial Overview",
+        "pathname": "editorial-overview"
+      },
+      "conditions": [
+        {
+          "alias": "Umb.Condition.SectionAlias",
+          "match": "Umb.Section.Content"
+        }
+      ]
+    },
+    {
+      "type": "dashboard",
+      "alias": "Umbraco.EditorialDigest.Dashboard.Settings",
+      "name": "Editorial Digest Settings Dashboard",
+      "js": "/App_Plugins/EditorialDigest/editorial-digest-settings.js",
+      "weight": -10,
+      "meta": {
+        "label": "Editorial Digest",
+        "pathname": "editorial-digest"
+      },
+      "conditions": [
+        {
+          "alias": "Umb.Condition.SectionAlias",
+          "match": "Umb.Section.Settings"
+        }
+      ]
+    }
+  ]
+}

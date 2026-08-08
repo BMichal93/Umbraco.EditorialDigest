@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.EditorialDigest.Constants;
 using Umbraco.EditorialDigest.Domain;
 using Umbraco.EditorialDigest.Persistence;
@@ -10,9 +9,10 @@ using Umbraco.EditorialDigest.Settings;
 
 namespace Umbraco.EditorialDigest.Controllers;
 
-[PluginController(EditorialDigestConstants.AreaName)]
+[ApiController]
+[Route("umbraco/management/api/v1/editorial-digest/dashboard")]
 [Authorize]
-public sealed class DashboardApiController : UmbracoAuthorizedJsonController
+public sealed class DashboardApiController : ManagementApiControllerBase
 {
     private readonly IEditorialDigestDataService _dataService;
     private readonly IEditorialDigestConfigStore _configStore;
@@ -25,7 +25,7 @@ public sealed class DashboardApiController : UmbracoAuthorizedJsonController
         _mailingListStore = mailingListStore;
     }
 
-    [HttpGet]
+    [HttpGet("overview")]
     public ActionResult<EditorialOverviewResponse> GetOverview()
     {
         var now = DateTime.UtcNow;

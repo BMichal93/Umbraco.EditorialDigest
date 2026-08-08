@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.EditorialDigest.Constants;
 using Umbraco.EditorialDigest.Settings;
 
 namespace Umbraco.EditorialDigest.Controllers;
 
-[PluginController(EditorialDigestConstants.AreaName)]
+[ApiController]
+[Route("umbraco/management/api/v1/editorial-digest/settings")]
 [Authorize(Roles = Umbraco.Cms.Core.Constants.Security.AdminGroupAlias)]
-public sealed class GlobalSettingsApiController : UmbracoAuthorizedJsonController
+public sealed class GlobalSettingsApiController : ManagementApiControllerBase
 {
     private readonly IGlobalSettingsStore _settingsStore;
 
@@ -34,7 +34,7 @@ public sealed class GlobalSettingsApiController : UmbracoAuthorizedJsonControlle
         });
     }
 
-    [HttpPost]
+    [HttpPut]
     public IActionResult Save([FromBody] GlobalSettingsRequest request)
     {
         var validationErrors = GlobalSettingsValidator.Validate(request);

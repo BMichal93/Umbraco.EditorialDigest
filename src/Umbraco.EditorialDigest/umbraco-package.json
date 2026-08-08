@@ -1,6 +1,0 @@
-{
-  "name": "Umbraco.EditorialDigest",
-  "version": "0.1.0",
-  "umbracoVersion": "13.0.0",
-  "description": "Scheduled editorial intelligence digests for Umbraco."
-}

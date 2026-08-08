@@ -1,8 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Core.Services;
 using Umbraco.EditorialDigest.Constants;
 using Umbraco.EditorialDigest.Domain;
@@ -11,39 +10,46 @@ using Umbraco.EditorialDigest.Settings;
 
 namespace Umbraco.EditorialDigest.Controllers;
 
-[PluginController(EditorialDigestConstants.AreaName)]
+[ApiController]
+[Route("umbraco/management/api/v1/editorial-digest/configurations")]
 [Authorize(Roles = Umbraco.Cms.Core.Constants.Security.AdminGroupAlias)]
-public sealed class DigestConfigApiController : UmbracoAuthorizedJsonController
+public sealed class DigestConfigApiController : ManagementApiControllerBase
 {
     private readonly IEditorialDigestConfigStore _configStore;
     private readonly IUserService _userService;
+    private readonly IUserGroupService _userGroupService;
 
-    public DigestConfigApiController(IEditorialDigestConfigStore configStore, IUserService userService)
+    public DigestConfigApiController(IEditorialDigestConfigStore configStore, IUserService userService, IUserGroupService userGroupService)
     {
         _configStore = configStore;
         _userService = userService;
+        _userGroupService = userGroupService;
     }
 
     [HttpGet]
     public ActionResult<IReadOnlyCollection<DigestConfigSummary>> GetAll()
         => Ok(_configStore.GetAll().Select(ToSummary));
 
-    [HttpGet]
+    [HttpGet("{id:int}")]
     public ActionResult<DigestConfigResponse> Get(int id)
     {
         var config = _configStore.GetById(id);
         return config is null ? NotFound() : Ok(ToResponse(config));
     }
 
-    [HttpGet]
+    [HttpGet("time-zones")]
     public ActionResult<IReadOnlyCollection<TimeZoneOption>> GetTimeZones()
         => Ok(TimeZoneInfo.GetSystemTimeZones().Select(timeZone => new TimeZoneOption(timeZone.Id, timeZone.DisplayName)));
 
-    [HttpGet]
-    public ActionResult<IReadOnlyCollection<UserGroupOption>> GetUserGroups()
-        => Ok(_userService.GetAllUserGroups(Array.Empty<int>())
+    [HttpGet("user-groups")]
+    public async Task<ActionResult<IReadOnlyCollection<UserGroupOption>>> GetUserGroups()
+    {
+        var groups = await _userGroupService.GetAllAsync(0, int.MaxValue);
+        return Ok(groups.Items
             .OrderBy(group => group.Name)
-            .Select(group => new UserGroupOption(group.Alias, group.Name ?? group.Alias)));
+            .Select(group => new UserGroupOption(group.Alias, group.Name ?? group.Alias))
+            .ToArray());
+    }
 
     [HttpPost]
     public ActionResult<DigestConfigResponse> Create([FromBody] DigestConfigRequest request)
@@ -57,7 +63,7 @@ public sealed class DigestConfigApiController : UmbracoAuthorizedJsonController
         return Ok(ToResponse(_configStore.GetById(id)!));
     }
 
-    [HttpPost]
+    [HttpPut("{id:int}")]
     public ActionResult<DigestConfigResponse> Save(int id, [FromBody] DigestConfigRequest request)
     {
         if (!ValidateRequest(request, id))
@@ -73,14 +79,14 @@ public sealed class DigestConfigApiController : UmbracoAuthorizedJsonController
         return Ok(ToResponse(_configStore.GetById(id)!));
     }
 
-    [HttpPost]
+    [HttpPost("{id:int}/duplicate")]
     public ActionResult<DigestConfigResponse> Duplicate(int id)
     {
         var duplicatedId = _configStore.Duplicate(id);
         return duplicatedId is null ? NotFound() : Ok(ToResponse(_configStore.GetById(duplicatedId.Value)!));
     }
 
-    [HttpDelete]
+    [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
         => _configStore.Delete(id) ? NoContent() : NotFound();
 

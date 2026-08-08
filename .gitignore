@@ -11,3 +11,5 @@ appsettings.*.json
 !appsettings.example.json
 !tests/Umbraco.EditorialDigest.Tests/appsettings.Tests.json
 appsettings-schema*.json
+tests/Umbraco.EditorialDigest.Tests/umbraco-package-schema.json
+samples/

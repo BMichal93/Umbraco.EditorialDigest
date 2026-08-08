@@ -13,15 +13,17 @@ public sealed class EditorialDigestDeliveryService : IEditorialDigestDeliverySer
     private readonly IGlobalSettingsStore _globalSettingsStore;
     private readonly IMailingListStore _mailingListStore;
     private readonly IUserService _userService;
+    private readonly IUserGroupService _userGroupService;
     private readonly IEditorialDigestDataService _dataService;
     private readonly IEditorialDigestEmailRenderer _emailRenderer;
     private readonly IEmailSender _emailSender;
 
-    public EditorialDigestDeliveryService(IGlobalSettingsStore globalSettingsStore, IMailingListStore mailingListStore, IUserService userService, IEditorialDigestDataService dataService, IEditorialDigestEmailRenderer emailRenderer, IEmailSender emailSender)
+    public EditorialDigestDeliveryService(IGlobalSettingsStore globalSettingsStore, IMailingListStore mailingListStore, IUserService userService, IUserGroupService userGroupService, IEditorialDigestDataService dataService, IEditorialDigestEmailRenderer emailRenderer, IEmailSender emailSender)
     {
         _globalSettingsStore = globalSettingsStore;
         _mailingListStore = mailingListStore;
         _userService = userService;
+        _userGroupService = userGroupService;
         _dataService = dataService;
         _emailRenderer = emailRenderer;
         _emailSender = emailSender;
@@ -35,7 +37,7 @@ public sealed class EditorialDigestDeliveryService : IEditorialDigestDeliverySer
             return 0;
         }
 
-        var resolvedRecipients = (recipients ?? GetRecipients(configuration).ToArray()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        var resolvedRecipients = (recipients ?? await GetRecipientsAsync(configuration)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         if (resolvedRecipients.Length == 0)
         {
             return 0;
@@ -46,25 +48,28 @@ public sealed class EditorialDigestDeliveryService : IEditorialDigestDeliverySer
         var body = await _emailRenderer.RenderAsync(model, cancellationToken);
         var from = string.IsNullOrWhiteSpace(configuration.FromEmail) ? settings.DefaultFromEmail : configuration.FromEmail;
         var subject = configuration.SubjectLineTemplate.Replace("{{digestName}}", configuration.Name, StringComparison.Ordinal).Replace("{{date}}", utcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), StringComparison.Ordinal);
-        await _emailSender.SendAsync(new EmailMessage(from, resolvedRecipients, null, null, string.IsNullOrWhiteSpace(configuration.ReplyToEmail) ? null : [configuration.ReplyToEmail], subject, body, true, null), "EditorialDigest");
+        await _emailSender.SendAsync(new EmailMessage(from, resolvedRecipients, null, null, string.IsNullOrWhiteSpace(configuration.ReplyToEmail) ? null : [configuration.ReplyToEmail], subject, body, true, null), "EditorialDigest", true, null);
         return resolvedRecipients.Length;
     }
 
-    private IEnumerable<string> GetRecipients(EditorialDigestConfig configuration)
+    private async Task<IReadOnlyCollection<string>> GetRecipientsAsync(EditorialDigestConfig configuration)
     {
+        var recipients = new List<string>();
         if (configuration.RecipientSource is RecipientSource.CustomMailingList or RecipientSource.Both)
         {
-            foreach (var entry in _mailingListStore.GetAll(configuration.Id).Where(entry => entry.IsActive)) yield return entry.Email;
+            recipients.AddRange(_mailingListStore.GetAll(configuration.Id).Where(entry => entry.IsActive).Select(entry => entry.Email));
         }
 
         if (configuration.RecipientSource is RecipientSource.UserGroups or RecipientSource.Both)
         {
             foreach (var alias in (configuration.RecipientUserGroups ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                var group = _userService.GetUserGroupByAlias(alias);
+                var group = await _userGroupService.GetAsync(alias);
                 if (group is null) continue;
-                foreach (var user in _userService.GetAllInGroup(group.Id).Where(user => !string.IsNullOrWhiteSpace(user.Email))) yield return user.Email!;
+                recipients.AddRange(_userService.GetAllInGroup(group.Id).Where(user => !string.IsNullOrWhiteSpace(user.Email)).Select(user => user.Email!));
             }
         }
+
+        return recipients;
     }
 }
