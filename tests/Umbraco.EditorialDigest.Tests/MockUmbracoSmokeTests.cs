@@ -7,6 +7,7 @@ using Umbraco.EditorialDigest.Composing;
 using Umbraco.EditorialDigest.Domain;
 using Umbraco.EditorialDigest.Migrations;
 using Umbraco.EditorialDigest.Settings;
+using Umbraco.EditorialDigest.Services;
 
 namespace Umbraco.EditorialDigest.Tests;
 
@@ -21,6 +22,7 @@ public sealed class MockUmbracoSmokeTests : UmbracoIntegrationTest
     public void ScopeProviderIsAvailable()
     {
         Assert.That(ScopeProvider, Is.Not.Null);
+        Assert.That(GetRequiredService<IEditorialDigestDataService>(), Is.Not.Null);
     }
 
     [Test]
