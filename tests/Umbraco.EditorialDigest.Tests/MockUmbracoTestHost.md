@@ -1,5 +1,5 @@
 # Mock Umbraco test host
 
-The next validation phase will add an isolated Umbraco host backed by a disposable database. It will run the package migration and exercise the Settings API through authenticated administrator requests.
+The test project uses Umbraco's official integration-test host with a disposable SQLite schema. It runs the package migration and verifies the configuration store against a real Umbraco scope and database.
 
-The configuration store has no HTTP or static Umbraco dependencies and receives `IScopeProvider` through DI, so the host can replace the database and scope implementation without changing production code.
+`appsettings.Tests.json` contains only non-secret test settings. Local overrides remain ignored.

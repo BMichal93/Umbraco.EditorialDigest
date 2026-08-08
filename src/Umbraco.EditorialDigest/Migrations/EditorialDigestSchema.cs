@@ -1,13 +1,12 @@
 using NPoco;
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
-using Umbraco.EditorialDigest.Domain;
 
-namespace Umbraco.EditorialDigest.Persistence;
+namespace Umbraco.EditorialDigest.Migrations;
 
 [TableName("umbracoEditorialDigestConfig")]
 [PrimaryKey("Id", AutoIncrement = true)]
 [ExplicitColumns]
-public sealed class EditorialDigestConfig
+internal sealed class EditorialDigestConfigSchema
 {
     [Column("Id")]
     [PrimaryKeyColumn(AutoIncrement = true)]
@@ -27,10 +26,10 @@ public sealed class EditorialDigestConfig
     public string? Description { get; set; }
 
     [Column("IsEnabled")]
-    public bool IsEnabled { get; set; } = true;
+    public bool IsEnabled { get; set; }
 
     [Column("RecipientSource")]
-    public RecipientSource RecipientSource { get; set; }
+    public int RecipientSource { get; set; }
 
     [Column("RecipientUserGroups")]
     [NullSetting(NullSetting = NullSettings.Null)]
@@ -38,7 +37,7 @@ public sealed class EditorialDigestConfig
     public string? RecipientUserGroups { get; set; }
 
     [Column("ScheduleType")]
-    public ScheduleType ScheduleType { get; set; }
+    public int ScheduleType { get; set; }
 
     [Column("ScheduleDay")]
     [NullSetting(NullSetting = NullSettings.Null)]
@@ -47,39 +46,32 @@ public sealed class EditorialDigestConfig
     [Column("ScheduleTime")]
     public long ScheduleTimeTicks { get; set; }
 
-    [Ignore]
-    public TimeSpan ScheduleTime
-    {
-        get => TimeSpan.FromTicks(ScheduleTimeTicks);
-        set => ScheduleTimeTicks = value.Ticks;
-    }
-
     [Column("TimeZoneId")]
     [Length(255)]
-    public string TimeZoneId { get; set; } = "UTC";
+    public string TimeZoneId { get; set; } = string.Empty;
 
     [Column("SectionsEnabled")]
     [Length(4000)]
-    public string SectionsEnabled { get; set; } = "[]";
+    public string SectionsEnabled { get; set; } = string.Empty;
 
     [Column("LookbackHours")]
-    public int LookbackHours { get; set; } = 24;
+    public int LookbackHours { get; set; }
 
     [Column("UpcomingHours")]
-    public int UpcomingHours { get; set; } = 48;
+    public int UpcomingHours { get; set; }
 
     [Column("StaleDays")]
-    public int StaleDays { get; set; } = 90;
+    public int StaleDays { get; set; }
 
     [Column("ExpiringDays")]
-    public int ExpiringDays { get; set; } = 7;
+    public int ExpiringDays { get; set; }
 
     [Column("MaxItemsPerSection")]
-    public int MaxItemsPerSection { get; set; } = 10;
+    public int MaxItemsPerSection { get; set; }
 
     [Column("SubjectLineTemplate")]
     [Length(500)]
-    public string SubjectLineTemplate { get; set; } = "{{digestName}} — Editorial Digest for {{date}}";
+    public string SubjectLineTemplate { get; set; } = string.Empty;
 
     [Column("FromName")]
     [NullSetting(NullSetting = NullSettings.Null)]
@@ -124,4 +116,41 @@ public sealed class EditorialDigestConfig
     [Column("LastRunRecipientCount")]
     [NullSetting(NullSetting = NullSettings.Null)]
     public int? LastRunRecipientCount { get; set; }
+}
+
+[TableName("umbracoEditorialDigestGlobalSettings")]
+[PrimaryKey("Id", AutoIncrement = true)]
+[ExplicitColumns]
+internal sealed class EditorialDigestGlobalSettingsSchema
+{
+    [Column("Id")]
+    [PrimaryKeyColumn(AutoIncrement = true)]
+    public int Id { get; set; }
+
+    [Column("DefaultFromName")]
+    [Length(255)]
+    public string DefaultFromName { get; set; } = string.Empty;
+
+    [Column("DefaultFromEmail")]
+    [Length(320)]
+    public string DefaultFromEmail { get; set; } = string.Empty;
+
+    [Column("LogoUrl")]
+    [NullSetting(NullSetting = NullSettings.Null)]
+    [Length(2000)]
+    public string? LogoUrl { get; set; }
+
+    [Column("CustomTemplateBasePath")]
+    [NullSetting(NullSetting = NullSettings.Null)]
+    [Length(1000)]
+    public string? CustomTemplateBasePath { get; set; }
+
+    [Column("DashboardRefreshMinutes")]
+    public int DashboardRefreshMinutes { get; set; }
+
+    [Column("IsPackageEnabled")]
+    public bool IsPackageEnabled { get; set; }
+
+    [Column("LoggingLevel")]
+    public int LoggingLevel { get; set; }
 }

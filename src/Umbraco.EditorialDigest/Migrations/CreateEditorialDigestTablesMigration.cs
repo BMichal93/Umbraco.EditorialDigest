@@ -13,17 +13,20 @@ public sealed class CreateEditorialDigestTablesMigration : MigrationBase
 
     protected override void Migrate()
     {
-        CreateTableIfMissing<EditorialDigestConfig>("umbracoEditorialDigestConfig");
+        CreateTableIfMissing<EditorialDigestConfigSchema>("umbracoEditorialDigestConfig");
         CreateTableIfMissing<EditorialDigestMailingListEntry>("umbracoEditorialDigestMailingList");
         CreateTableIfMissing<EditorialDigestLog>("umbracoEditorialDigestLog");
-        CreateTableIfMissing<EditorialDigestGlobalSettings>("umbracoEditorialDigestGlobalSettings");
+        CreateTableIfMissing<EditorialDigestGlobalSettingsSchema>("umbracoEditorialDigestGlobalSettings");
 
         CreateUniqueIndexIfMissing("IX_EditorialDigestConfig_Alias", "umbracoEditorialDigestConfig", "Alias");
         CreateUniqueIndexIfMissing("IX_EditorialDigestMailingList_UnsubscribeToken", "umbracoEditorialDigestMailingList", "UnsubscribeToken");
         CreateIndexIfMissing("IX_EditorialDigestMailingList_ConfigId", "umbracoEditorialDigestMailingList", "ConfigId");
         CreateIndexIfMissing("IX_EditorialDigestLog_ConfigId_SentDate", "umbracoEditorialDigestLog", "ConfigId", "SentDate");
-        CreateForeignKey("FK_EditorialDigestMailingList_Config", "umbracoEditorialDigestMailingList");
-        CreateForeignKey("FK_EditorialDigestLog_Config", "umbracoEditorialDigestLog");
+        if (!SqlSyntax.DbProvider.Equals("Microsoft.Data.Sqlite", StringComparison.OrdinalIgnoreCase))
+        {
+            CreateForeignKey("FK_EditorialDigestMailingList_Config", "umbracoEditorialDigestMailingList");
+            CreateForeignKey("FK_EditorialDigestLog_Config", "umbracoEditorialDigestLog");
+        }
     }
 
     private void CreateTableIfMissing<T>(string tableName)

@@ -9,3 +9,5 @@ TestResults/
 *.snupkg
 appsettings.*.json
 !appsettings.example.json
+!tests/Umbraco.EditorialDigest.Tests/appsettings.Tests.json
+appsettings-schema*.json
