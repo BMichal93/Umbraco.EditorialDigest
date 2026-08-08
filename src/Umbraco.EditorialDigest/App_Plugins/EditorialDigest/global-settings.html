@@ -1,0 +1,52 @@
+<div ng-controller="EditorialDigest.GlobalSettingsController as vm">
+    <umb-editor-view>
+        <umb-editor-header name="Global Settings" name-locked="true"></umb-editor-header>
+        <umb-editor-container>
+            <umb-box ng-if="vm.settings">
+                <umb-box-header title="Package defaults"></umb-box-header>
+                <umb-box-content>
+                    <umb-property>
+                        <umb-property-editor label="Default sender name">
+                            <input type="text" class="umb-textstring" ng-model="vm.settings.defaultFromName" maxlength="255" />
+                        </umb-property-editor>
+                    </umb-property>
+                    <umb-property>
+                        <umb-property-editor label="Default sender email">
+                            <input type="email" class="umb-textstring" ng-model="vm.settings.defaultFromEmail" maxlength="320" />
+                        </umb-property-editor>
+                    </umb-property>
+                    <umb-property>
+                        <umb-property-editor label="Logo URL">
+                            <input type="url" class="umb-textstring" ng-model="vm.settings.logoUrl" maxlength="2000" />
+                        </umb-property-editor>
+                    </umb-property>
+                    <umb-property>
+                        <umb-property-editor label="Email template base path" description="Optional. Must be under /Views/.">
+                            <input type="text" class="umb-textstring" ng-model="vm.settings.customTemplateBasePath" maxlength="1000" />
+                        </umb-property-editor>
+                    </umb-property>
+                    <umb-property>
+                        <umb-property-editor label="Dashboard refresh interval (minutes)">
+                            <input type="number" min="1" max="60" ng-model="vm.settings.dashboardRefreshMinutes" />
+                        </umb-property-editor>
+                    </umb-property>
+                    <umb-property>
+                        <umb-property-editor label="Package enabled">
+                            <umb-toggle checked="vm.settings.isPackageEnabled" on-click="vm.settings.isPackageEnabled = !vm.settings.isPackageEnabled"></umb-toggle>
+                        </umb-property-editor>
+                    </umb-property>
+                    <umb-property>
+                        <umb-property-editor label="Logging level">
+                            <select ng-model="vm.settings.loggingLevel" ng-options="level.value as level.label for level in vm.loggingLevels"></select>
+                        </umb-property-editor>
+                    </umb-property>
+                </umb-box-content>
+            </umb-box>
+        </umb-editor-container>
+        <umb-editor-footer>
+            <umb-editor-footer-content-right>
+                <umb-button type="button" button-style="success" label="Save" action="vm.save()" state="vm.isSaving ? 'busy' : 'init'" disabled="!vm.settings"></umb-button>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+    </umb-editor-view>
+</div>

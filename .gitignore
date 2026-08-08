@@ -1,0 +1,11 @@
+.vs/
+.idea/
+bin/
+obj/
+TestResults/
+*.user
+*.suo
+*.nupkg
+*.snupkg
+appsettings.*.json
+!appsettings.example.json

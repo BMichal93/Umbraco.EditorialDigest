@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language alias="da_dk" intName="Danish (Denmark)" localName="Dansk (Danmark)" lcid="1030" culture="da-DK">
+  <area alias="treeHeaders">
+    <key alias="editorialDigest">Redaktionelt resumé</key>
+  </area>
+</language>

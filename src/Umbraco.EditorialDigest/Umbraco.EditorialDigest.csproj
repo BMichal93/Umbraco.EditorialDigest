@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <AssemblyName>Umbraco.EditorialDigest</AssemblyName>
+    <RootNamespace>Umbraco.EditorialDigest</RootNamespace>
+    <PackageId>Umbraco.EditorialDigest</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Umbraco.EditorialDigest contributors</Authors>
+    <Description>Scheduled editorial intelligence digests for Umbraco.</Description>
+    <PackageTags>umbraco;editorial;digest</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <IsPackable>true</IsPackable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <IncludeRazorContentInPack>true</IncludeRazorContentInPack>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Core" Version="13.16.0" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="13.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App_Plugins\EditorialDigest\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="content\App_Plugins\EditorialDigest" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
