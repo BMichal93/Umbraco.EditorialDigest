@@ -14,5 +14,6 @@ public sealed class EditorialDigestComposer : IComposer
         builder.Services.AddSingleton<IEditorialDigestConfigStore, EditorialDigestConfigStore>();
         builder.Services.AddSingleton<IMailingListStore, MailingListStore>();
         builder.Services.AddSingleton<IEditorialDigestDataService, EditorialDigestDataService>();
+        builder.Services.AddSingleton<IEditorialDigestEmailRenderer, RazorEditorialDigestEmailRenderer>();
     }
 }
