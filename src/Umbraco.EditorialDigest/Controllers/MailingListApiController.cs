@@ -76,6 +76,11 @@ public sealed class MailingListApiController : UmbracoAuthorizedJsonController
             return NotFound();
         }
 
+        if (string.IsNullOrWhiteSpace(request.Values))
+        {
+            return BadRequest("Provide at least one email address.");
+        }
+
         var values = request.Values.Split([',', ';', '\r', '\n'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
