@@ -8,5 +8,8 @@ namespace Umbraco.EditorialDigest.Composing;
 public sealed class EditorialDigestComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
-        => builder.Services.AddSingleton<IGlobalSettingsStore, GlobalSettingsStore>();
+    {
+        builder.Services.AddSingleton<IGlobalSettingsStore, GlobalSettingsStore>();
+        builder.Services.AddSingleton<IEditorialDigestConfigStore, EditorialDigestConfigStore>();
+    }
 }

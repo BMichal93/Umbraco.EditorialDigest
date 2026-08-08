@@ -1,5 +1,6 @@
 {
   "javascript": [
+    "~/App_Plugins/EditorialDigest/digests.controller.js",
     "~/App_Plugins/EditorialDigest/global-settings.controller.js"
   ],
   "css": [

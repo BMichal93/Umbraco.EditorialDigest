@@ -8,9 +8,6 @@
             controllerAs: "vm"
         });
 
-        $routeProvider.when("/settings/editorialDigest/digests", {
-            templateUrl: "/App_Plugins/EditorialDigest/digests.html"
-        });
     });
 
     angular.module("umbraco").controller("EditorialDigest.GlobalSettingsController", function ($http, notificationsService) {

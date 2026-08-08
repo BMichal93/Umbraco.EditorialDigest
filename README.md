@@ -16,3 +16,7 @@ The package creates its database schema during Umbraco startup. Administrators c
 - **Global Settings**: default sender, logo URL, Razor template base path, dashboard refresh interval, package kill switch, and logging level.
 
 The remaining digest configuration and delivery features are intentionally delivered in later phases.
+
+## License and contributors
+
+Licensed under the [MIT License](LICENSE). See [CONTRIBUTORS.md](CONTRIBUTORS.md) for project contributors.

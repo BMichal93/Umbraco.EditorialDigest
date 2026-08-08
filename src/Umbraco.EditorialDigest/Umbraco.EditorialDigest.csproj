@@ -4,9 +4,11 @@
     <RootNamespace>Umbraco.EditorialDigest</RootNamespace>
     <PackageId>Umbraco.EditorialDigest</PackageId>
     <Version>0.1.0</Version>
-    <Authors>Umbraco.EditorialDigest contributors</Authors>
+    <Authors>BMichal93;OpenAI Codex</Authors>
     <Description>Scheduled editorial intelligence digests for Umbraco.</Description>
     <PackageTags>umbraco;editorial;digest</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/BMichal93/Umbraco.EditorialDigest</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeBuildOutput>true</IncludeBuildOutput>
@@ -23,5 +25,7 @@
   <ItemGroup>
     <Content Include="App_Plugins\EditorialDigest\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="content\App_Plugins\EditorialDigest" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\CONTRIBUTORS.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

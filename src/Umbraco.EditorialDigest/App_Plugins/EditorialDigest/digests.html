@@ -1,11 +1,97 @@
-<umb-editor-view>
-    <umb-editor-header name="Digests" name-locked="true"></umb-editor-header>
-    <umb-editor-container>
-        <umb-box>
-            <umb-box-header title="Digest configurations"></umb-box-header>
-            <umb-box-content>
-                <p>Create and manage scheduled digest configurations here in the next implementation phase.</p>
-            </umb-box-content>
-        </umb-box>
-    </umb-editor-container>
-</umb-editor-view>
+<div ng-controller="EditorialDigest.DigestsController as vm">
+    <umb-editor-view ng-if="!vm.editor">
+        <umb-editor-header name="Digests" name-locked="true"></umb-editor-header>
+        <umb-editor-container>
+            <umb-box>
+                <umb-box-header title="Digest configurations"></umb-box-header>
+                <umb-box-content>
+                    <umb-button type="button" button-style="success" label="Create digest" action="vm.newConfig()"></umb-button>
+                    <umb-table ng-if="vm.configs.length" items="vm.configs">
+                        <umb-table-head>
+                            <umb-table-head-cell>Name</umb-table-head-cell>
+                            <umb-table-head-cell>Alias</umb-table-head-cell>
+                            <umb-table-head-cell>Enabled</umb-table-head-cell>
+                            <umb-table-head-cell>Last run</umb-table-head-cell>
+                            <umb-table-head-cell></umb-table-head-cell>
+                        </umb-table-head>
+                        <umb-table-row ng-repeat="config in vm.configs">
+                            <umb-table-cell>{{config.name}}</umb-table-cell>
+                            <umb-table-cell>{{config.alias}}</umb-table-cell>
+                            <umb-table-cell>{{config.isEnabled ? 'Yes' : 'No'}}</umb-table-cell>
+                            <umb-table-cell>{{config.lastRunDate ? (config.lastRunDate | date:'medium') : 'Not run'}}</umb-table-cell>
+                            <umb-table-cell>
+                                <button type="button" class="btn btn-link" ng-click="vm.edit(config.id)">Edit</button>
+                                <button type="button" class="btn btn-link" ng-click="vm.duplicate(config.id)">Duplicate</button>
+                                <button type="button" class="btn btn-link" ng-click="vm.remove(config)">Delete</button>
+                            </umb-table-cell>
+                        </umb-table-row>
+                    </umb-table>
+                    <p ng-if="!vm.configs.length">No digest configurations have been created.</p>
+                </umb-box-content>
+            </umb-box>
+        </umb-editor-container>
+    </umb-editor-view>
+
+    <umb-editor-view ng-if="vm.editor">
+        <umb-editor-header name="{{vm.editor.id ? vm.editor.name : 'Create digest'}}" name-locked="true"></umb-editor-header>
+        <umb-editor-container>
+            <umb-box>
+                <umb-box-header title="Configuration"></umb-box-header>
+                <umb-box-content>
+                    <umb-property><umb-property-editor label="Name"><input class="umb-textstring" ng-model="vm.editor.name" maxlength="255" required /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Alias" description="Lowercase letters, numbers, and hyphens only."><input class="umb-textstring" ng-model="vm.editor.alias" maxlength="255" required /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Description"><textarea ng-model="vm.editor.description" maxlength="2000"></textarea></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Enabled"><umb-toggle checked="vm.editor.isEnabled" on-click="vm.editor.isEnabled = !vm.editor.isEnabled"></umb-toggle></umb-property-editor></umb-property>
+                </umb-box-content>
+            </umb-box>
+
+            <umb-box>
+                <umb-box-header title="Recipients"></umb-box-header>
+                <umb-box-content>
+                    <umb-property><umb-property-editor label="Recipient source"><select ng-model="vm.editor.recipientSource" ng-options="source.value as source.label for source in vm.recipientSources"></select></umb-property-editor></umb-property>
+                    <umb-property ng-if="vm.editor.recipientSource !== 1"><umb-property-editor label="User group aliases" description="Comma-separated aliases. A searchable group selector is added with the Mock Umbraco integration phase."><input class="umb-textstring" ng-model="vm.editor.recipientUserGroups" maxlength="2000" /></umb-property-editor></umb-property>
+                    <p ng-if="vm.editor.recipientSource !== 0">Custom recipients are managed in the mailing-list phase.</p>
+                </umb-box-content>
+            </umb-box>
+
+            <umb-box>
+                <umb-box-header title="Schedule"></umb-box-header>
+                <umb-box-content>
+                    <umb-property><umb-property-editor label="Schedule"><select ng-model="vm.editor.scheduleType" ng-options="type.value as type.label for type in vm.scheduleTypes"></select></umb-property-editor></umb-property>
+                    <umb-property ng-if="vm.editor.scheduleType === 1"><umb-property-editor label="Day"><select ng-model="vm.editor.scheduleDay" ng-options="$index as day for day in vm.weekdays"></select></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Time"><input type="time" ng-model="vm.editor.scheduleTime" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Time zone"><select ng-model="vm.editor.timeZoneId" ng-options="zone.id as zone.displayName for zone in vm.timeZones"></select></umb-property-editor></umb-property>
+                </umb-box-content>
+            </umb-box>
+
+            <umb-box>
+                <umb-box-header title="Digest sections"></umb-box-header>
+                <umb-box-content>
+                    <label class="checkbox" ng-repeat="section in vm.sections"><input type="checkbox" ng-checked="vm.isSectionEnabled(section)" ng-click="vm.toggleSection(section)" /> {{section.label}}</label>
+                    <umb-property><umb-property-editor label="Recently published lookback (hours)"><input type="number" min="1" max="720" ng-model="vm.editor.lookbackHours" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Upcoming content window (hours)"><input type="number" min="1" max="720" ng-model="vm.editor.upcomingHours" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Stale content threshold (days)"><input type="number" min="1" max="3650" ng-model="vm.editor.staleDays" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Expiring content window (days)"><input type="number" min="1" max="365" ng-model="vm.editor.expiringDays" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Maximum items per section"><input type="number" min="1" max="50" ng-model="vm.editor.maxItemsPerSection" /></umb-property-editor></umb-property>
+                </umb-box-content>
+            </umb-box>
+
+            <umb-box>
+                <umb-box-header title="Email"></umb-box-header>
+                <umb-box-content>
+                    <umb-property><umb-property-editor label="Subject template"><input class="umb-textstring" ng-model="vm.editor.subjectLineTemplate" maxlength="500" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="From name"><input class="umb-textstring" ng-model="vm.editor.fromName" maxlength="255" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="From email"><input type="email" class="umb-textstring" ng-model="vm.editor.fromEmail" maxlength="320" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Reply-to email"><input type="email" class="umb-textstring" ng-model="vm.editor.replyToEmail" maxlength="320" /></umb-property-editor></umb-property>
+                    <umb-property><umb-property-editor label="Custom Razor template path" description="Optional. Must be under /Views/."><input class="umb-textstring" ng-model="vm.editor.customTemplatePath" maxlength="1000" /></umb-property-editor></umb-property>
+                </umb-box-content>
+            </umb-box>
+        </umb-editor-container>
+        <umb-editor-footer>
+            <umb-editor-footer-content-right>
+                <umb-button type="button" button-style="link" label="Cancel" action="vm.cancel()"></umb-button>
+                <umb-button type="button" button-style="success" label="Save" action="vm.save()" state="vm.isSaving ? 'busy' : 'init'"></umb-button>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+    </umb-editor-view>
+</div>
