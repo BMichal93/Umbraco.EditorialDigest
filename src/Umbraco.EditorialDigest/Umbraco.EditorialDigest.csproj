@@ -12,6 +12,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/BMichal93/Umbraco.EditorialDigest</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NuspecFile>Umbraco.EditorialDigest.nuspec</NuspecFile>
+    <NuspecProperties>PackageId=$(PackageId);Version=$(Version);Authors=BMichal93,OpenAI Codex;Description=Scheduled editorial intelligence digests for Umbraco.;PackageTags=umbraco editorial digest;Configuration=$(Configuration)</NuspecProperties>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <IsPackable>true</IsPackable>
