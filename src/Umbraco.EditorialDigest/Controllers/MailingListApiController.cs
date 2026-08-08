@@ -1,17 +1,17 @@
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Web.BackOffice.Controllers;
-using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.EditorialDigest.Constants;
 using Umbraco.EditorialDigest.Persistence;
 using Umbraco.EditorialDigest.Settings;
 
 namespace Umbraco.EditorialDigest.Controllers;
 
-[PluginController(EditorialDigestConstants.AreaName)]
+[ApiController]
+[Route("umbraco/management/api/v1/editorial-digest/configurations/{configId:int}/recipients")]
 [Authorize(Roles = Umbraco.Cms.Core.Constants.Security.AdminGroupAlias)]
-public sealed class MailingListApiController : UmbracoAuthorizedJsonController
+public sealed class MailingListApiController : ManagementApiControllerBase
 {
     private readonly IEditorialDigestConfigStore _configStore;
     private readonly IMailingListStore _mailingListStore;
@@ -50,7 +50,7 @@ public sealed class MailingListApiController : UmbracoAuthorizedJsonController
         return Ok(ToResponse(_mailingListStore.GetById(id)!));
     }
 
-    [HttpPost]
+    [HttpPut("{id:int}")]
     public ActionResult<MailingListEntryResponse> Save(int configId, int id, [FromBody] MailingListEntryRequest request)
     {
         var entry = _mailingListStore.GetById(id);
@@ -68,7 +68,7 @@ public sealed class MailingListApiController : UmbracoAuthorizedJsonController
         return Ok(ToResponse(_mailingListStore.GetById(id)!));
     }
 
-    [HttpPost]
+    [HttpPost("import")]
     public ActionResult<IReadOnlyCollection<MailingListEntryResponse>> Import(int configId, [FromBody] MailingListImportRequest request)
     {
         if (_configStore.GetById(configId) is null)
@@ -104,7 +104,7 @@ public sealed class MailingListApiController : UmbracoAuthorizedJsonController
         return Ok(imported);
     }
 
-    [HttpGet]
+    [HttpGet("export")]
     public IActionResult Export(int configId)
     {
         if (_configStore.GetById(configId) is null)
@@ -118,7 +118,7 @@ public sealed class MailingListApiController : UmbracoAuthorizedJsonController
         return File(Encoding.UTF8.GetBytes(csv), "text/csv", $"editorial-digest-recipients-{configId}.csv");
     }
 
-    [HttpDelete]
+    [HttpDelete("{id:int}")]
     public IActionResult Delete(int configId, int id)
     {
         var entry = _mailingListStore.GetById(id);

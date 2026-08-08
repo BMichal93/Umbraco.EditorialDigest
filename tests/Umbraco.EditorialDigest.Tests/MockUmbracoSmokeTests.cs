@@ -35,11 +35,11 @@ public sealed class MockUmbracoSmokeTests : UmbracoIntegrationTest
     }
 
     [Test]
-    public void PackageMigrationCreatesTablesAndConfigStorePersistsConfiguration()
+    public async Task PackageMigrationCreatesTablesAndConfigStorePersistsConfiguration()
     {
         var migrationPlan = new EditorialDigestMigrationPlan();
-        var migrationResult = GetRequiredService<IMigrationPlanExecutor>()
-            .ExecutePlan(migrationPlan, migrationPlan.InitialState);
+        var migrationResult = await GetRequiredService<IMigrationPlanExecutor>()
+            .ExecutePlanAsync(migrationPlan, migrationPlan.InitialState);
 
         Assert.That(migrationResult.Successful, Is.True, migrationResult.Exception?.ToString());
 

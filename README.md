@@ -1,6 +1,6 @@
 # Umbraco.EditorialDigest
 
-Scheduled editorial intelligence digests for Umbraco 13+.
+Scheduled editorial intelligence digests for Umbraco 17 and 18, built on .NET 10.
 
 ## Install
 
@@ -8,14 +8,14 @@ Scheduled editorial intelligence digests for Umbraco 13+.
 dotnet add package Umbraco.EditorialDigest
 ```
 
-The package creates its database schema during Umbraco startup. Administrators can access the initial package settings at **Settings > Editorial Digest > Global Settings**.
+The package creates its database schema during Umbraco startup. Administrators manage digests from **Settings > Editorial Digest**. Editorial activity is available at **Content > Editorial Overview**.
 
-## Phase 1 screens
+## Backoffice screens
 
-- **Settings tree**: an Editorial Digest tree in Settings with Digests and Global Settings nodes.
-- **Global Settings**: default sender, logo URL, Razor template base path, dashboard refresh interval, package kill switch, and logging level.
+- **Editorial Digest**: create and manage digest configurations and global delivery settings.
+- **Editorial Overview**: recently published, pending review, stale content, and active digest status.
 
-The remaining digest configuration and delivery features are intentionally delivered in later phases.
+The package uses the Umbraco 14+ extension manifest and Management API model. It does not ship deprecated AngularJS assets or legacy `package.manifest` files.
 
 ## License and contributors
 

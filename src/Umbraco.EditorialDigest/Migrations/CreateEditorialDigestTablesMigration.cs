@@ -4,14 +4,14 @@ using Umbraco.EditorialDigest.Persistence;
 
 namespace Umbraco.EditorialDigest.Migrations;
 
-public sealed class CreateEditorialDigestTablesMigration : MigrationBase
+public sealed class CreateEditorialDigestTablesMigration : AsyncMigrationBase
 {
     public CreateEditorialDigestTablesMigration(IMigrationContext context)
         : base(context)
     {
     }
 
-    protected override void Migrate()
+    protected override Task MigrateAsync()
     {
         CreateTableIfMissing<EditorialDigestConfigSchema>("umbracoEditorialDigestConfig");
         CreateTableIfMissing<EditorialDigestMailingListEntry>("umbracoEditorialDigestMailingList");
@@ -27,6 +27,8 @@ public sealed class CreateEditorialDigestTablesMigration : MigrationBase
             CreateForeignKey("FK_EditorialDigestMailingList_Config", "umbracoEditorialDigestMailingList");
             CreateForeignKey("FK_EditorialDigestLog_Config", "umbracoEditorialDigestLog");
         }
+
+        return Task.CompletedTask;
     }
 
     private void CreateTableIfMissing<T>(string tableName)

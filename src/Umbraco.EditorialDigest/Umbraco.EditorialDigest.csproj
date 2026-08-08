@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <UmbracoVersion Condition="'$(UmbracoVersion)' == ''">18.1.0</UmbracoVersion>
     <AssemblyName>Umbraco.EditorialDigest</AssemblyName>
     <RootNamespace>Umbraco.EditorialDigest</RootNamespace>
     <PackageId>Umbraco.EditorialDigest</PackageId>
@@ -10,6 +12,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/BMichal93/Umbraco.EditorialDigest</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NuspecFile>Umbraco.EditorialDigest.nuspec</NuspecFile>
+    <NuspecProperties>PackageId=$(PackageId);Version=$(Version);Authors=BMichal93,OpenAI Codex;Description=Scheduled editorial intelligence digests for Umbraco.;PackageTags=umbraco editorial digest;Configuration=$(Configuration)</NuspecProperties>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <IsPackable>true</IsPackable>
@@ -18,12 +22,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Core" Version="13.16.0" />
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="13.16.0" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="$(UmbracoVersion)" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="$(UmbracoVersion)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="$(UmbracoVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="App_Plugins\EditorialDigest\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="content\App_Plugins\EditorialDigest" />
+    <Content Update="App_Plugins\EditorialDigest\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="content" />
+    <None Update="App_Plugins\EditorialDigest\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="content" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
     <None Include="..\..\CONTRIBUTORS.md" Pack="true" PackagePath="\" />
