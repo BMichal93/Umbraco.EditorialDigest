@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Cms.Core.Services;
 using Umbraco.EditorialDigest.Constants;
 using Umbraco.EditorialDigest.Domain;
 using Umbraco.EditorialDigest.Persistence;
@@ -15,10 +16,12 @@ namespace Umbraco.EditorialDigest.Controllers;
 public sealed class DigestConfigApiController : UmbracoAuthorizedJsonController
 {
     private readonly IEditorialDigestConfigStore _configStore;
+    private readonly IUserService _userService;
 
-    public DigestConfigApiController(IEditorialDigestConfigStore configStore)
+    public DigestConfigApiController(IEditorialDigestConfigStore configStore, IUserService userService)
     {
         _configStore = configStore;
+        _userService = userService;
     }
 
     [HttpGet]
@@ -35,6 +38,12 @@ public sealed class DigestConfigApiController : UmbracoAuthorizedJsonController
     [HttpGet]
     public ActionResult<IReadOnlyCollection<TimeZoneOption>> GetTimeZones()
         => Ok(TimeZoneInfo.GetSystemTimeZones().Select(timeZone => new TimeZoneOption(timeZone.Id, timeZone.DisplayName)));
+
+    [HttpGet]
+    public ActionResult<IReadOnlyCollection<UserGroupOption>> GetUserGroups()
+        => Ok(_userService.GetAllUserGroups(Array.Empty<int>())
+            .OrderBy(group => group.Name)
+            .Select(group => new UserGroupOption(group.Alias, group.Name ?? group.Alias)));
 
     [HttpPost]
     public ActionResult<DigestConfigResponse> Create([FromBody] DigestConfigRequest request)
@@ -149,3 +158,5 @@ public sealed class DigestConfigApiController : UmbracoAuthorizedJsonController
 }
 
 public sealed record TimeZoneOption(string Id, string DisplayName);
+
+public sealed record UserGroupOption(string Alias, string Name);

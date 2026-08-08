@@ -49,7 +49,7 @@
                 <umb-box-header title="Recipients"></umb-box-header>
                 <umb-box-content>
                     <umb-property><umb-property-editor label="Recipient source"><select ng-model="vm.editor.recipientSource" ng-options="source.value as source.label for source in vm.recipientSources"></select></umb-property-editor></umb-property>
-                    <umb-property ng-if="vm.editor.recipientSource !== 1"><umb-property-editor label="User group aliases" description="Comma-separated aliases. A searchable group selector is added with the Mock Umbraco integration phase."><input class="umb-textstring" ng-model="vm.editor.recipientUserGroups" maxlength="2000" /></umb-property-editor></umb-property>
+                    <umb-property ng-if="vm.editor.recipientSource !== 1"><umb-property-editor label="User groups"><select multiple ng-model="vm.editor.selectedUserGroups" ng-options="group.alias as group.name for group in vm.userGroups"></select></umb-property-editor></umb-property>
                     <p ng-if="vm.editor.recipientSource !== 0">Custom recipients are managed in the mailing-list phase.</p>
                 </umb-box-content>
             </umb-box>
@@ -84,6 +84,27 @@
                     <umb-property><umb-property-editor label="From email"><input type="email" class="umb-textstring" ng-model="vm.editor.fromEmail" maxlength="320" /></umb-property-editor></umb-property>
                     <umb-property><umb-property-editor label="Reply-to email"><input type="email" class="umb-textstring" ng-model="vm.editor.replyToEmail" maxlength="320" /></umb-property-editor></umb-property>
                     <umb-property><umb-property-editor label="Custom Razor template path" description="Optional. Must be under /Views/."><input class="umb-textstring" ng-model="vm.editor.customTemplatePath" maxlength="1000" /></umb-property-editor></umb-property>
+                </umb-box-content>
+            </umb-box>
+
+            <umb-box ng-if="vm.editor.id && vm.editor.recipientSource !== 0">
+                <umb-box-header title="Custom mailing list"></umb-box-header>
+                <umb-box-content>
+                    <umb-button type="button" button-style="success" label="Add recipient" action="vm.newMailingEntry()"></umb-button>
+                    <a class="btn btn-link" ng-href="{{vm.exportUrl()}}">Export CSV</a>
+                    <textarea ng-model="vm.importValues" placeholder="Paste comma or newline separated email addresses"></textarea>
+                    <umb-button type="button" button-style="default" label="Import recipients" action="vm.importMailingEntries()"></umb-button>
+                    <div ng-if="vm.mailingEditor">
+                        <umb-property><umb-property-editor label="Email"><input type="email" class="umb-textstring" ng-model="vm.mailingEditor.email" required /></umb-property-editor></umb-property>
+                        <umb-property><umb-property-editor label="Name"><input class="umb-textstring" ng-model="vm.mailingEditor.name" /></umb-property-editor></umb-property>
+                        <umb-property><umb-property-editor label="Company"><input class="umb-textstring" ng-model="vm.mailingEditor.company" /></umb-property-editor></umb-property>
+                        <umb-property><umb-property-editor label="Active"><umb-toggle checked="vm.mailingEditor.isActive" on-click="vm.mailingEditor.isActive = !vm.mailingEditor.isActive"></umb-toggle></umb-property-editor></umb-property>
+                        <umb-button type="button" button-style="success" label="Save recipient" action="vm.saveMailingEntry()"></umb-button>
+                    </div>
+                    <umb-table ng-if="vm.mailingEntries.length" items="vm.mailingEntries">
+                        <umb-table-head><umb-table-head-cell>Email</umb-table-head-cell><umb-table-head-cell>Name</umb-table-head-cell><umb-table-head-cell>Active</umb-table-head-cell><umb-table-head-cell></umb-table-head-cell></umb-table-head>
+                        <umb-table-row ng-repeat="entry in vm.mailingEntries"><umb-table-cell>{{entry.email}}</umb-table-cell><umb-table-cell>{{entry.name || entry.company}}</umb-table-cell><umb-table-cell>{{entry.isActive ? 'Yes' : 'No'}}</umb-table-cell><umb-table-cell><button type="button" class="btn btn-link" ng-click="vm.editMailingEntry(entry)">Edit</button><button type="button" class="btn btn-link" ng-click="vm.deleteMailingEntry(entry)">Remove</button></umb-table-cell></umb-table-row>
+                    </umb-table>
                 </umb-box-content>
             </umb-box>
         </umb-editor-container>

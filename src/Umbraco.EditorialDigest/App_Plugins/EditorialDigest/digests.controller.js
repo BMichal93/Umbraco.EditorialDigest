@@ -16,6 +16,9 @@
         vm.configs = [];
         vm.editor = null;
         vm.timeZones = [];
+        vm.userGroups = [];
+        vm.mailingEntries = [];
+        vm.mailingEditor = null;
         vm.isSaving = false;
         vm.recipientSources = [
             { value: 0, label: "Umbraco User Groups" },
@@ -48,6 +51,7 @@
                 scheduleTime: "09:00:00",
                 timeZoneId: "UTC",
                 sectionsEnabled: [0, 1],
+                selectedUserGroups: [],
                 lookbackHours: 24,
                 upcomingHours: 48,
                 staleDays: 90,
@@ -60,17 +64,24 @@
         vm.edit = function (id) {
             $http.get(endpoint + "Get", { params: { id: id } }).then(function (response) {
                 vm.editor = response.data;
+                vm.editor.selectedUserGroups = parseUserGroups(vm.editor.recipientUserGroups);
+                loadMailingList();
             }).catch(showError);
         };
 
         vm.cancel = function () {
             vm.editor = null;
+            vm.mailingEntries = [];
+            vm.mailingEditor = null;
         };
 
         vm.save = function () {
             vm.isSaving = true;
             var action = vm.editor.id ? "Save?id=" + vm.editor.id : "Create";
-            $http.post(endpoint + action, vm.editor).then(function (response) {
+            var request = angular.copy(vm.editor);
+            request.recipientUserGroups = request.selectedUserGroups.join(",");
+            delete request.selectedUserGroups;
+            $http.post(endpoint + action, request).then(function (response) {
                 notificationsService.success("Editorial Digest", "Digest configuration saved.");
                 vm.editor = response.data;
                 loadConfigs();
@@ -114,6 +125,48 @@
             }
         };
 
+        vm.newMailingEntry = function () {
+            vm.mailingEditor = { isActive: true };
+        };
+
+        vm.editMailingEntry = function (entry) {
+            vm.mailingEditor = angular.copy(entry);
+        };
+
+        vm.saveMailingEntry = function () {
+            var action = vm.mailingEditor.id
+                ? "Save?configId=" + vm.editor.id + "&id=" + vm.mailingEditor.id
+                : "Create?configId=" + vm.editor.id;
+            $http.post("/umbraco/backoffice/EditorialDigest/MailingListApi/" + action, vm.mailingEditor).then(function () {
+                vm.mailingEditor = null;
+                loadMailingList();
+            }).catch(showError);
+        };
+
+        vm.deleteMailingEntry = function (entry) {
+            if (!$window.confirm("Remove '" + entry.email + "' from this mailing list?")) {
+                return;
+            }
+
+            $http.delete("/umbraco/backoffice/EditorialDigest/MailingListApi/Delete", {
+                params: { configId: vm.editor.id, id: entry.id }
+            }).then(loadMailingList).catch(showError);
+        };
+
+        vm.importMailingEntries = function () {
+            $http.post("/umbraco/backoffice/EditorialDigest/MailingListApi/Import?configId=" + vm.editor.id, {
+                values: vm.importValues
+            }).then(function (response) {
+                vm.importValues = "";
+                notificationsService.success("Editorial Digest", response.data.length + " recipients imported.");
+                loadMailingList();
+            }).catch(showError);
+        };
+
+        vm.exportUrl = function () {
+            return "/umbraco/backoffice/EditorialDigest/MailingListApi/Export?configId=" + vm.editor.id;
+        };
+
         function loadConfigs() {
             $http.get(endpoint + "GetAll").then(function (response) {
                 vm.configs = response.data;
@@ -125,8 +178,29 @@
             notificationsService.error("Editorial Digest", message);
         }
 
+        function loadMailingList() {
+            if (!vm.editor || !vm.editor.id || vm.editor.recipientSource === 0) {
+                vm.mailingEntries = [];
+                return;
+            }
+
+            $http.get("/umbraco/backoffice/EditorialDigest/MailingListApi/GetAll", {
+                params: { configId: vm.editor.id }
+            }).then(function (response) {
+                vm.mailingEntries = response.data;
+            }).catch(showError);
+        }
+
+        function parseUserGroups(value) {
+            return value ? value.split(",").filter(Boolean) : [];
+        }
+
         $http.get(endpoint + "GetTimeZones").then(function (response) {
             vm.timeZones = response.data;
+        }).catch(showError);
+
+        $http.get(endpoint + "GetUserGroups").then(function (response) {
+            vm.userGroups = response.data;
         }).catch(showError);
 
         loadConfigs();
