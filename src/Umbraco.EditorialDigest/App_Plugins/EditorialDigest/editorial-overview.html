@@ -1,0 +1,28 @@
+<div ng-controller="EditorialDigest.EditorialOverviewController as vm">
+    <umb-editor-view>
+        <umb-editor-header name="Editorial Overview"></umb-editor-header>
+        <umb-editor-container>
+            <umb-load-indicator ng-if="vm.loading"></umb-load-indicator>
+            <umb-box ng-repeat="section in vm.overview.sections" ng-if="section.items.length">
+                <umb-box-header title="{{section.section}}"></umb-box-header>
+                <umb-box-content>
+                    <umb-table items="section.items">
+                        <umb-table-column name="Page" property="name"></umb-table-column>
+                        <umb-table-column name="Type" property="contentTypeAlias"></umb-table-column>
+                        <umb-table-column name="Status" property="status"></umb-table-column>
+                    </umb-table>
+                </umb-box-content>
+            </umb-box>
+            <umb-box>
+                <umb-box-header title="Active Digests"></umb-box-header>
+                <umb-box-content>
+                    <umb-table items="vm.overview.activeDigests">
+                        <umb-table-column name="Name" property="name"></umb-table-column>
+                        <umb-table-column name="Recipients" property="recipientCount"></umb-table-column>
+                        <umb-table-column name="Last status" property="lastRunStatus"></umb-table-column>
+                    </umb-table>
+                </umb-box-content>
+            </umb-box>
+        </umb-editor-container>
+    </umb-editor-view>
+</div>
