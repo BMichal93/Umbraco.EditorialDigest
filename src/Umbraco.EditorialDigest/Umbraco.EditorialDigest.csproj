@@ -5,7 +5,7 @@
     <AssemblyName>Umbraco.EditorialDigest</AssemblyName>
     <RootNamespace>Umbraco.EditorialDigest</RootNamespace>
     <PackageId>Umbraco.EditorialDigest</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>BMichal93;OpenAI Codex</Authors>
     <Description>Scheduled editorial intelligence digests for Umbraco.</Description>
     <PackageTags>umbraco;editorial;digest</PackageTags>
