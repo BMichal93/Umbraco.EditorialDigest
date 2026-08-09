@@ -68,4 +68,3 @@ function escapeHtml(value) {
 }
 
 customElements.define("editorial-overview-dashboard", EditorialOverviewDashboard);
-export default EditorialOverviewDashboard;

@@ -160,4 +160,3 @@ function formatDate(value) { return value ? new Intl.DateTimeFormat(undefined, {
 function escapeHtml(value) { return String(value ?? "").replace(/[&<>'"]/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", "\"":"&quot;" })[character]); }
 
 customElements.define("editorial-digest-settings", EditorialDigestSettings);
-export default EditorialDigestSettings;
