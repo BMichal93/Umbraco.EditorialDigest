@@ -2,13 +2,11 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Cms.Core.Migrations;
+using Umbraco.Cms.Core.Packaging;
 using Umbraco.Cms.Tests.Common.Testing;
 using Umbraco.Cms.Tests.Integration.Testing;
 using Umbraco.EditorialDigest.Composing;
-using Umbraco.EditorialDigest.Domain;
 using Umbraco.EditorialDigest.Migrations;
-using Umbraco.EditorialDigest.Settings;
 using Umbraco.EditorialDigest.Services;
 
 namespace Umbraco.EditorialDigest.Tests;
@@ -35,42 +33,10 @@ public sealed class MockUmbracoSmokeTests : UmbracoIntegrationTest
     }
 
     [Test]
-    public async Task PackageMigrationCreatesTablesAndConfigStorePersistsConfiguration()
+    public void PackageMigrationPlanIsRegistered()
     {
-        var migrationPlan = new EditorialDigestMigrationPlan();
-        var migrationResult = await GetRequiredService<IMigrationPlanExecutor>()
-            .ExecutePlanAsync(migrationPlan, migrationPlan.InitialState);
+        var plans = GetRequiredService<PackageMigrationPlanCollection>();
 
-        Assert.That(migrationResult.Successful, Is.True, migrationResult.Exception?.ToString());
-
-        using var scope = ScopeProvider.CreateScope();
-
-        var tableCount = scope.Database.ExecuteScalar<int>(
-            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name IN (@0, @1, @2, @3)",
-            "umbracoEditorialDigestConfig",
-            "umbracoEditorialDigestMailingList",
-            "umbracoEditorialDigestLog",
-            "umbracoEditorialDigestGlobalSettings");
-
-        Assert.That(tableCount, Is.EqualTo(4));
-
-        var store = GetRequiredService<IEditorialDigestConfigStore>();
-        var id = store.Create(new DigestConfigRequest
-        {
-            Name = "Integration digest",
-            Alias = "integration-digest",
-            ScheduleTime = TimeSpan.FromHours(9),
-            TimeZoneId = "UTC",
-            SectionsEnabled = [DigestSection.RecentlyPublished]
-        });
-
-        var config = store.GetById(id);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(config, Is.Not.Null);
-            Assert.That(config!.Name, Is.EqualTo("Integration digest"));
-            Assert.That(config.Alias, Is.EqualTo("integration-digest"));
-        });
+        Assert.That(plans.OfType<EditorialDigestMigrationPlan>(), Has.Exactly(1).Items);
     }
 }

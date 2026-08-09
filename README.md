@@ -17,6 +17,17 @@ The package creates its database schema during Umbraco startup. Administrators m
 
 The package uses the Umbraco 14+ extension manifest and Management API model. It does not ship deprecated AngularJS assets or legacy `package.manifest` files.
 
+## Local acceptance site
+
+Create a disposable Umbraco 18 SQLite site with the locally packed package:
+
+```powershell
+pwsh ./tools/New-LocalAcceptanceSite.ps1
+dotnet run --project ./samples/EditorialDigest.TestSite/EditorialDigest.TestSite.csproj
+```
+
+Finish installation in the browser and create the administrator directly in the installer. The generated site, database, and credentials are ignored by Git.
+
 ## License and contributors
 
 Licensed under the [MIT License](LICENSE). See [CONTRIBUTORS.md](CONTRIBUTORS.md) for project contributors.

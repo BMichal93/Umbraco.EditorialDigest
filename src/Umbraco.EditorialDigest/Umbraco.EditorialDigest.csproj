@@ -19,6 +19,7 @@
     <IsPackable>true</IsPackable>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <IncludeRazorContentInPack>true</IncludeRazorContentInPack>
+    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,8 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="App_Plugins\EditorialDigest\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="content" />
-    <None Update="App_Plugins\EditorialDigest\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="content" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
     <None Include="..\..\CONTRIBUTORS.md" Pack="true" PackagePath="\" />
