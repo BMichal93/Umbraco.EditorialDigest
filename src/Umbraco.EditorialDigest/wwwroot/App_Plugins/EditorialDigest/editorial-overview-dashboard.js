@@ -1,9 +1,8 @@
-import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { umbHttpClient } from "@umbraco-cms/backoffice/http-client";
 
 const overviewEndpoint = "/umbraco/management/api/v1/editorial-digest/dashboard/overview";
 
-class EditorialOverviewDashboard extends UmbElementMixin(HTMLElement) {
+class EditorialOverviewDashboard extends HTMLElement {
     connectedCallback() {
         this.load();
     }
@@ -12,17 +11,10 @@ class EditorialOverviewDashboard extends UmbElementMixin(HTMLElement) {
         this.render("Loading editorial overview...");
 
         try {
-            const authContext = await this.getContext(UMB_AUTH_CONTEXT);
-            const token = await authContext?.getLatestToken();
-            if (!token) throw new Error("Your backoffice session has expired. Please sign in again.");
+            const result = await umbHttpClient.get({ url: overviewEndpoint });
+            if (result.error || !result.data) throw new Error("Unable to load the editorial overview.");
 
-            const response = await fetch(overviewEndpoint, {
-                credentials: "include",
-                headers: { "Authorization": `Bearer ${token}` }
-            });
-            if (!response.ok) throw new Error("Unable to load the editorial overview.");
-
-            this.renderOverview(await response.json());
+            this.renderOverview(result.data);
         } catch (error) {
             this.render(error.message);
         }

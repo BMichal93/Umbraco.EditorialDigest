@@ -1,5 +1,4 @@
-import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { umbHttpClient } from "@umbraco-cms/backoffice/http-client";
 
 const apiRoot = "/umbraco/management/api/v1/editorial-digest";
 const defaultConfig = () => ({
@@ -10,7 +9,7 @@ const defaultConfig = () => ({
     fromName: "", fromEmail: "", replyToEmail: "", customTemplatePath: ""
 });
 
-class EditorialDigestSettings extends UmbElementMixin(HTMLElement) {
+class EditorialDigestSettings extends HTMLElement {
     async connectedCallback() {
         await this.load();
     }
@@ -134,26 +133,16 @@ function configForm(config) { return `<form id="digest-config">
 
 function sectionCheckboxes(enabled) { return [[0,"Recently published"],[1,"Upcoming scheduled content"],[2,"Stuck workflows"],[3,"Pending review"],[4,"Expiring content"],[5,"Stale content"],[6,"Broken links"]].map(([value, label]) => `<label><input name="sectionsEnabled" type="checkbox" value="${value}" ${enabled.includes(value) ? "checked" : ""}> ${label}</label>`).join(""); }
 async function request(host, path, options = {}) {
-    const authContext = await host.getContext(UMB_AUTH_CONTEXT);
-    const token = await authContext?.getLatestToken();
-    if (!token) throw new Error("Your backoffice session has expired. Please sign in again.");
-
-    const response = await fetch(`${apiRoot}${path}`, {
-        credentials: "include",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-            ...(options.headers || {})
-        },
-        ...options
+    const method = (options.method || "GET").toLowerCase();
+    const requestMethod = umbHttpClient[method];
+    const result = await requestMethod({
+        url: `${apiRoot}${path}`,
+        body: options.body ? JSON.parse(options.body) : undefined,
+        headers: options.headers
     });
 
-    if (!response.ok) {
-        const error = await response.json().catch(() => null);
-        throw new Error(error?.detail || error?.title || "The request could not be completed.");
-    }
-
-    return response.status === 204 ? null : response.json();
+    if (result.error) throw new Error(result.error.detail || result.error.title || "The request could not be completed.");
+    return result.data ?? null;
 }
 function selected(value, option) { return Number(value) === option ? "selected" : ""; }
 function formatDate(value) { return value ? new Intl.DateTimeFormat(undefined, { dateStyle:"medium", timeStyle:"short" }).format(new Date(value)) : "Never"; }
