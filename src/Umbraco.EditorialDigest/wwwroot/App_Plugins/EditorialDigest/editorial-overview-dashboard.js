@@ -1,8 +1,9 @@
 import { umbHttpClient } from "@umbraco-cms/backoffice/http-client";
+import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 
 const overviewEndpoint = "/umbraco/management/api/v1/editorial-digest/dashboard/overview";
 
-class EditorialOverviewDashboard extends HTMLElement {
+class EditorialOverviewDashboard extends UmbElementMixin(HTMLElement) {
     connectedCallback() {
         this.load();
     }

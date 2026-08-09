@@ -1,4 +1,5 @@
 import { umbHttpClient } from "@umbraco-cms/backoffice/http-client";
+import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 
 const apiRoot = "/umbraco/management/api/v1/editorial-digest";
 const defaultConfig = () => ({
@@ -9,7 +10,7 @@ const defaultConfig = () => ({
     fromName: "", fromEmail: "", replyToEmail: "", customTemplatePath: ""
 });
 
-class EditorialDigestSettings extends HTMLElement {
+class EditorialDigestSettings extends UmbElementMixin(HTMLElement) {
     async connectedCallback() {
         await this.load();
     }
