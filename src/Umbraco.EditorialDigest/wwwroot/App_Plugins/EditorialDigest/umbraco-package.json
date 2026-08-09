@@ -8,7 +8,8 @@
       "type": "dashboard",
       "alias": "Umbraco.EditorialDigest.Dashboard.Overview",
       "name": "Editorial Overview Dashboard",
-      "js": "/App_Plugins/EditorialDigest/editorial-overview-dashboard.js",
+      "element": "/App_Plugins/EditorialDigest/editorial-overview-dashboard.js",
+      "elementName": "editorial-overview-dashboard",
       "weight": -10,
       "meta": {
         "label": "Editorial Overview",
@@ -25,7 +26,8 @@
       "type": "dashboard",
       "alias": "Umbraco.EditorialDigest.Dashboard.Settings",
       "name": "Editorial Digest Settings Dashboard",
-      "js": "/App_Plugins/EditorialDigest/editorial-digest-settings.js",
+      "element": "/App_Plugins/EditorialDigest/editorial-digest-settings.js",
+      "elementName": "editorial-digest-settings",
       "weight": -10,
       "meta": {
         "label": "Editorial Digest",

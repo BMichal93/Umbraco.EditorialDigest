@@ -1,3 +1,6 @@
+import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
+import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+
 const apiRoot = "/umbraco/management/api/v1/editorial-digest";
 const defaultConfig = () => ({
     id: 0, name: "", alias: "", description: "", isEnabled: true, recipientSource: 0,
@@ -7,7 +10,7 @@ const defaultConfig = () => ({
     fromName: "", fromEmail: "", replyToEmail: "", customTemplatePath: ""
 });
 
-class EditorialDigestSettings extends HTMLElement {
+class EditorialDigestSettings extends UmbElementMixin(HTMLElement) {
     async connectedCallback() {
         await this.load();
     }
@@ -15,12 +18,12 @@ class EditorialDigestSettings extends HTMLElement {
     async load(selectedId) {
         try {
             const [configs, settings] = await Promise.all([
-                request("/configurations"),
-                request("/settings")
+                this.request("/configurations"),
+                this.request("/settings")
             ]);
             this.configs = configs;
             this.settings = settings;
-            this.editor = selectedId ? await request(`/configurations/${selectedId}`) : this.editor;
+            this.editor = selectedId ? await this.request(`/configurations/${selectedId}`) : this.editor;
             this.render();
         } catch (error) {
             this.innerHTML = `<uui-box headline="Editorial Digest"><p>${escapeHtml(error.message)}</p></uui-box>`;
@@ -66,10 +69,14 @@ class EditorialDigestSettings extends HTMLElement {
         this.querySelector("#preview")?.addEventListener("click", () => window.open(`${apiRoot}/configurations/${this.editor.id}/delivery/preview`, "_blank", "noopener"));
     }
 
+    async request(path, options = {}) {
+        return request(this, path, options);
+    }
+
     async saveGlobal(event) {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
-        await this.execute(() => request("/settings", { method: "PUT", body: JSON.stringify({
+        await this.execute(() => this.request("/settings", { method: "PUT", body: JSON.stringify({
             defaultFromName: form.get("defaultFromName"), defaultFromEmail: form.get("defaultFromEmail") || null,
             logoUrl: form.get("logoUrl") || null, customTemplateBasePath: form.get("customTemplateBasePath") || null,
             dashboardRefreshMinutes: Number(form.get("dashboardRefreshMinutes")), isPackageEnabled: form.get("isPackageEnabled") === "on",
@@ -95,14 +102,14 @@ class EditorialDigestSettings extends HTMLElement {
         };
         const id = this.editor.id;
         await this.execute(async () => {
-            this.editor = await request(`/configurations${id ? `/${id}` : ""}`, { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
+            this.editor = await this.request(`/configurations${id ? `/${id}` : ""}`, { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
             await this.load(this.editor.id);
         });
     }
 
-    async duplicate(id) { await this.execute(() => request(`/configurations/${id}/duplicate`, { method: "POST" }).then(config => this.load(config.id))); }
-    async remove(id) { if (confirm("Delete this digest configuration?")) await this.execute(() => request(`/configurations/${id}`, { method: "DELETE" }).then(() => { this.editor = null; return this.load(); })); }
-    async runNow() { if (confirm("Send this digest to all active recipients now?")) await this.execute(() => request(`/configurations/${this.editor.id}/delivery/run`, { method: "POST" }).then(() => this.load(this.editor.id))); }
+    async duplicate(id) { await this.execute(() => this.request(`/configurations/${id}/duplicate`, { method: "POST" }).then(config => this.load(config.id))); }
+    async remove(id) { if (confirm("Delete this digest configuration?")) await this.execute(() => this.request(`/configurations/${id}`, { method: "DELETE" }).then(() => { this.editor = null; return this.load(); })); }
+    async runNow() { if (confirm("Send this digest to all active recipients now?")) await this.execute(() => this.request(`/configurations/${this.editor.id}/delivery/run`, { method: "POST" }).then(() => this.load(this.editor.id))); }
     async execute(action) { try { await action(); } catch (error) { alert(error.message); } }
 }
 
@@ -126,7 +133,28 @@ function configForm(config) { return `<form id="digest-config">
     <div class="toolbar"><uui-button type="submit" look="primary" label="Save digest">Save digest</uui-button>${config.id ? '<uui-button id="preview" type="button" look="secondary" label="Preview">Preview</uui-button><uui-button id="run-now" type="button" look="secondary" label="Run now">Run now</uui-button>' : ""}</div></form>`; }
 
 function sectionCheckboxes(enabled) { return [[0,"Recently published"],[1,"Upcoming scheduled content"],[2,"Stuck workflows"],[3,"Pending review"],[4,"Expiring content"],[5,"Stale content"],[6,"Broken links"]].map(([value, label]) => `<label><input name="sectionsEnabled" type="checkbox" value="${value}" ${enabled.includes(value) ? "checked" : ""}> ${label}</label>`).join(""); }
-async function request(path, options = {}) { const response = await fetch(`${apiRoot}${path}`, { credentials: "same-origin", headers: { "Content-Type": "application/json", ...(options.headers || {}) }, ...options }); if (!response.ok) { const error = await response.json().catch(() => null); throw new Error(error?.detail || error?.title || "The request could not be completed."); } return response.status === 204 ? null : response.json(); }
+async function request(host, path, options = {}) {
+    const authContext = await host.getContext(UMB_AUTH_CONTEXT);
+    const token = await authContext?.getLatestToken();
+    if (!token) throw new Error("Your backoffice session has expired. Please sign in again.");
+
+    const response = await fetch(`${apiRoot}${path}`, {
+        credentials: "include",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        },
+        ...options
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => null);
+        throw new Error(error?.detail || error?.title || "The request could not be completed.");
+    }
+
+    return response.status === 204 ? null : response.json();
+}
 function selected(value, option) { return Number(value) === option ? "selected" : ""; }
 function formatDate(value) { return value ? new Intl.DateTimeFormat(undefined, { dateStyle:"medium", timeStyle:"short" }).format(new Date(value)) : "Never"; }
 function escapeHtml(value) { return String(value ?? "").replace(/[&<>'"]/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", "\"":"&quot;" })[character]); }
