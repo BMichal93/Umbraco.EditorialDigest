@@ -138,7 +138,8 @@ async function request(host, path, options = {}) {
     const result = await requestMethod({
         url: `${apiRoot}${path}`,
         body: options.body ? JSON.parse(options.body) : undefined,
-        headers: options.headers
+        headers: options.headers,
+        security: [{ type: "http", scheme: "bearer" }]
     });
 
     if (result.error) throw new Error(result.error.detail || result.error.title || "The request could not be completed.");

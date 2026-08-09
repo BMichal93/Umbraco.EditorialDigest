@@ -11,7 +11,10 @@ class EditorialOverviewDashboard extends HTMLElement {
         this.render("Loading editorial overview...");
 
         try {
-            const result = await umbHttpClient.get({ url: overviewEndpoint });
+            const result = await umbHttpClient.get({
+                url: overviewEndpoint,
+                security: [{ type: "http", scheme: "bearer" }]
+            });
             if (result.error || !result.data) throw new Error("Unable to load the editorial overview.");
 
             this.renderOverview(result.data);
