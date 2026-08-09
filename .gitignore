@@ -1,5 +1,8 @@
 .vs/
 .idea/
+.env
+.env.local
+.env.*.local
 bin/
 obj/
 TestResults/
@@ -13,3 +16,13 @@ appsettings.*.json
 appsettings-schema*.json
 tests/Umbraco.EditorialDigest.Tests/umbraco-package-schema.json
 samples/
+test/MockUmbraco17/umbraco/Data/
+test/MockUmbraco17/umbraco/Logs/
+test/MockUmbraco17/App_Data/TEMP/
+test/MockUmbraco17/wwwroot/media/
+test/MockUmbraco17/umbraco-package-schema.json
+test/MockUmbraco18/umbraco/Data/
+test/MockUmbraco18/umbraco/Logs/
+test/MockUmbraco18/App_Data/TEMP/
+test/MockUmbraco18/wwwroot/media/
+test/MockUmbraco18/umbraco-package-schema.json

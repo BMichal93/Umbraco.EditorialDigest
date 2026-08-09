@@ -28,6 +28,10 @@ dotnet run --project ./samples/EditorialDigest.TestSite/EditorialDigest.TestSite
 
 Finish installation in the browser and create the administrator directly in the installer. The generated site, database, and credentials are ignored by Git.
 
+## Mock Umbraco sites
+
+For repeatable local package development against Umbraco 17.6 and 18.1, use the tracked mock hosts and deterministic seed migration described in [docs/MockUmbraco.md](docs/MockUmbraco.md).
+
 ## License and contributors
 
 Licensed under the [MIT License](LICENSE). See [CONTRIBUTORS.md](CONTRIBUTORS.md) for project contributors.
